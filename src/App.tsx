@@ -1,58 +1,57 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 const text =
   "This is a bunch of text that we want to render, in the real system this comes from Convex. This is a bunch of text that we want to render, in the real system this comes from Convex. This is a bunch of text that we want to render, in the real system this comes from Convex. This is a bunch of text that we want to render, in the real system this comes from Convex.";
 
-type TSelection = {
+type TWord = {
   text: string;
-  startIdx: number;
-};
-
-const mergeHighlighted = (
-  highlighted: TSelection[],
-  newStart: number,
-  newEnd: number
-) => {
-  // if the new selection overlaps with an existing selection,
-  // we need to merge them
-  for (let i = 0; i < highlighted.length; i++) {
-    let h = highlighted[i];
-    let existingEnd = h.startIdx + h.text.length;
-    let existingStart = h.startIdx;
-    // is there an overlap?
-    if (
-      (newStart >= existingStart && newStart <= existingEnd) ||
-      (newEnd >= existingStart && newEnd <= existingEnd)
-    ) {
-      // there is an overlap, so we need to merge
-      // we need to find the new start and end
-      newStart = Math.min(newStart, existingStart);
-      newEnd = Math.max(newEnd, existingEnd);
-      highlighted[i] = {
-        text: text.substring(newStart, newEnd),
-        startIdx: newStart,
-      };
-    }
-  };
-  return highlighted;
+  highlighted: boolean;
 };
 
 function App() {
-  const [highlighted, setHighlighted] = useState<TSelection[]>([]);
+  const [highlighted, setHighlighted] = useState<TWord[]>();
+
+  useEffect(() => {
+    setHighlighted(
+      text.split(" ").map((t) => ({ text: t, highlighted: false }))
+    );
+  }, []);
 
   const handleHighlightText = (e: React.MouseEvent) => {
     const selection = window.getSelection();
     if (selection) {
-      // if any previous selections overlap, we need to remove them
-      let start = selection.anchorOffset;
-      let end = selection.toString().length + start;
-      const tmpHighlighted = mergeHighlighted(highlighted, start, end);
-      setHighlighted(tmpHighlighted);
+      const t = selection.getRangeAt(0).toString();
+      console.log(t);
+      if (t && t.length > 0) {
+        setHighlighted(
+          highlighted?.map((h) => {
+            if (t.includes(h.text)) {
+              return { ...h, highlighted: true };
+            }
+            return h;
+          })
+        );
+      }
     }
   };
-  console.log(highlighted);
-  return <div onMouseUp={(e) => handleHighlightText(e)}>{text}</div>;
+  const highlightedStyle = {
+    backgroundColor: "yellow",
+    cursor: "pointer",
+  };
+  const normalStyle = {
+    backgroundColor: "transparent",
+  };
+  return (
+    <div onMouseUp={(e) => handleHighlightText(e)}>
+      {highlighted?.map((h, i) => (
+        <span key={i} style={h.highlighted ? highlightedStyle : normalStyle}>
+          {" "}
+          {h.text}{" "}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 export default App;
