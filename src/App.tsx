@@ -36,7 +36,23 @@ const HighlightableText = ({ text }: { text: string }) => {
       [start, end] = [end, start];
     }
 
+    if (start === end) {
+      return;
+    }
+    console.log(start, end);
+
     const tmpHighlighted: TOrderedTextSection = [];
+
+    // check if selection crosses a span boundary
+    const startNodeParent = selection.anchorNode?.parentNode;
+    const endNodeParent = selection.focusNode?.parentNode;
+    if (!startNodeParent ||
+        !endNodeParent ||
+        startNodeParent !== endNodeParent) {
+      // TODO - handle selection that spans multiple spans
+      console.log("selection spans multiple spans");
+      return;
+    }
 
     // compensate the start/end offsets for the lengths of the previous spans
     let endOfLastSpanBeforeSelection = 0;
@@ -79,7 +95,6 @@ const HighlightableText = ({ text }: { text: string }) => {
       // is this child before the selection?
       let position = selection.anchorNode?.compareDocumentPosition(child);
       if (position && position === Node.DOCUMENT_POSITION_FOLLOWING) {
-        console.log(idx, child);
         tmpHighlighted.push({
           text: child.textContent || "",
           highlighted: highlighted[idx].highlighted,
