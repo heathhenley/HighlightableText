@@ -1,7 +1,8 @@
 import { useState } from "react";
 import "./App.css";
 
-const dummyText = "This is a bunch of dummy text to test highlighting! This is a bunch of dummy text to test highlighting.";
+const dummyText =
+  "This is a bunch of dummy text to test highlighting! This is a bunch of dummy text to test highlighting.";
 
 type TTextSection = {
   text: string;
@@ -17,7 +18,13 @@ const highlightedStyle = {
   cursor: "pointer",
 };
 
-const HighlightableText = ({ text }: { text: string }) => {
+const HighlightableText = ({
+  text,
+  onTextHighlighted,
+}: {
+  text: string;
+  onTextHighlighted?: (s: string) => void;
+}) => {
   const [highlighted, setHighlighted] = useState<TOrderedTextSection>([
     { text: text, highlighted: false },
   ]);
@@ -46,9 +53,11 @@ const HighlightableText = ({ text }: { text: string }) => {
     // check if selection crosses a span boundary
     const startNodeParent = selection.anchorNode?.parentNode;
     const endNodeParent = selection.focusNode?.parentNode;
-    if (!startNodeParent ||
-        !endNodeParent ||
-        startNodeParent !== endNodeParent) {
+    if (
+      !startNodeParent ||
+      !endNodeParent ||
+      startNodeParent !== endNodeParent
+    ) {
       // TODO - handle selection that spans multiple spans
       console.log("selection spans multiple spans");
       return;
@@ -102,6 +111,9 @@ const HighlightableText = ({ text }: { text: string }) => {
       }
     });
     setHighlighted(tmpHighlighted);
+    if (onTextHighlighted) {
+      onTextHighlighted(selection.toString());
+    }
   };
 
   return (

@@ -6,8 +6,8 @@ Based on the approach there, I'm basically trying to generalize it.
 
 It still has a lot of problems:
 - select text that spans multiple spans
-- sometimes it doesn't seem to highlight
-- not working when last character selected is one of the ends of the whole text
+  - figured out how to detect this and just do nothing, but
+    it would be better to merge them properly 
 
 ## Running the app
 Just regular `npm install` and `npm run dev`
